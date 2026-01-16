@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/uesteibar/ccstats/internal/api"
+	"github.com/uesteibar/ccstats/internal/display"
 	"github.com/uesteibar/ccstats/internal/keychain"
 )
 
@@ -15,12 +17,17 @@ func main() {
 }
 
 func run() error {
-	_, err := keychain.GetAccessToken()
+	token, err := keychain.GetAccessToken()
 	if err != nil {
 		return err
 	}
 
-	// Token retrieved successfully - further functionality will be added in subsequent stories
-	fmt.Println("Credentials found. API fetching will be implemented in the next story.")
+	client := api.NewClient()
+	usage, err := client.FetchUsage(token)
+	if err != nil {
+		return err
+	}
+
+	display.DisplayUsage(os.Stdout, usage)
 	return nil
 }
