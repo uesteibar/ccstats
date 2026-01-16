@@ -108,8 +108,21 @@ func FormatRelativeTimeFrom(resetAt time.Time, now time.Time) string {
 		return "resets now"
 	}
 
-	hours := int(duration.Hours())
+	totalHours := int(duration.Hours())
+	days := totalHours / 24
+	hours := totalHours % 24
 	minutes := int(duration.Minutes()) % 60
+
+	if days > 0 {
+		if hours > 0 && minutes > 0 {
+			return fmt.Sprintf("resets in %dd %dh %dm", days, hours, minutes)
+		} else if hours > 0 {
+			return fmt.Sprintf("resets in %dd %dh", days, hours)
+		} else if minutes > 0 {
+			return fmt.Sprintf("resets in %dd %dm", days, minutes)
+		}
+		return fmt.Sprintf("resets in %dd", days)
+	}
 
 	if hours > 0 && minutes > 0 {
 		return fmt.Sprintf("resets in %dh %dm", hours, minutes)

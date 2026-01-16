@@ -101,9 +101,24 @@ func TestFormatRelativeTimeFrom(t *testing.T) {
 			want:    "resets now",
 		},
 		{
-			name:    "many hours",
-			resetAt: now.Add(48*time.Hour + 30*time.Minute),
-			want:    "resets in 48h 30m",
+			name:    "days hours and minutes",
+			resetAt: now.Add(48*time.Hour + 5*time.Hour + 30*time.Minute),
+			want:    "resets in 2d 5h 30m",
+		},
+		{
+			name:    "days and hours only",
+			resetAt: now.Add(72 * time.Hour),
+			want:    "resets in 3d",
+		},
+		{
+			name:    "days and minutes only",
+			resetAt: now.Add(24*time.Hour + 45*time.Minute),
+			want:    "resets in 1d 45m",
+		},
+		{
+			name:    "exactly one day",
+			resetAt: now.Add(24 * time.Hour),
+			want:    "resets in 1d",
 		},
 	}
 
@@ -192,10 +207,10 @@ func TestDisplayUsageFrom(t *testing.T) {
 	if !strings.Contains(output, "resets in 1h 30m") {
 		t.Error("Output should contain reset time for 5-hour")
 	}
-	if !strings.Contains(output, "resets in 24h") {
+	if !strings.Contains(output, "resets in 1d") {
 		t.Error("Output should contain reset time for 7-day")
 	}
-	if !strings.Contains(output, "resets in 48h") {
+	if !strings.Contains(output, "resets in 2d") {
 		t.Error("Output should contain reset time for 7-day Sonnet")
 	}
 }
