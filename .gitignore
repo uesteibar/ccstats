@@ -1,2 +1,5 @@
 # Ralph autonomous agent
 .ralph
+
+# Build artifacts
+ccstats
