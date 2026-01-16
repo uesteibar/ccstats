@@ -98,6 +98,10 @@ func FormatRelativeTime(resetAt time.Time) string {
 // FormatRelativeTimeFrom formats a time.Time as a human-readable relative duration from a given reference time.
 // This is useful for testing with deterministic time values.
 func FormatRelativeTimeFrom(resetAt time.Time, now time.Time) string {
+	if resetAt.IsZero() {
+		return ""
+	}
+
 	duration := resetAt.Sub(now)
 
 	if duration <= 0 {
@@ -155,6 +159,6 @@ func DisplayUsageWithColor(w io.Writer, usage *api.UsageResponse, now time.Time,
 	fmt.Fprintln(w, strings.Repeat("─", 60))
 	fmt.Fprintln(w, FormatMetricWithColor("5-hour", usage.FiveHour, now, colorCfg))
 	fmt.Fprintln(w, FormatMetricWithColor("7-day", usage.SevenDay, now, colorCfg))
-	fmt.Fprintln(w, FormatMetricWithColor("7-day Opus", usage.SevenDayOpus, now, colorCfg))
+	fmt.Fprintln(w, FormatMetricWithColor("7-day Sonnet", usage.SevenDaySonnet, now, colorCfg))
 	fmt.Fprintln(w)
 }

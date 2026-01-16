@@ -150,7 +150,7 @@ func TestDisplayUsageFrom(t *testing.T) {
 			Utilization: 0.5,
 			ResetAt:     now.Add(24 * time.Hour),
 		},
-		SevenDayOpus: api.UsageMetric{
+		SevenDaySonnet: api.UsageMetric{
 			Utilization: 0.8,
 			ResetAt:     now.Add(48 * time.Hour),
 		},
@@ -173,8 +173,8 @@ func TestDisplayUsageFrom(t *testing.T) {
 	if !strings.Contains(output, "7-day") {
 		t.Error("Output should contain 7-day metric")
 	}
-	if !strings.Contains(output, "7-day Opus") {
-		t.Error("Output should contain 7-day Opus metric")
+	if !strings.Contains(output, "7-day Sonnet") {
+		t.Error("Output should contain 7-day Sonnet metric")
 	}
 
 	// Check progress bars are present (verify percentages)
@@ -185,7 +185,7 @@ func TestDisplayUsageFrom(t *testing.T) {
 		t.Error("Output should contain 50% for 7-day")
 	}
 	if !strings.Contains(output, "80%") {
-		t.Error("Output should contain 80% for 7-day Opus")
+		t.Error("Output should contain 80% for 7-day Sonnet")
 	}
 
 	// Check reset times are present
@@ -196,7 +196,7 @@ func TestDisplayUsageFrom(t *testing.T) {
 		t.Error("Output should contain reset time for 7-day")
 	}
 	if !strings.Contains(output, "resets in 48h") {
-		t.Error("Output should contain reset time for 7-day Opus")
+		t.Error("Output should contain reset time for 7-day Sonnet")
 	}
 }
 
@@ -364,7 +364,7 @@ func TestDisplayUsageWithColor(t *testing.T) {
 			Utilization: 0.6,
 			ResetAt:     now.Add(24 * time.Hour),
 		},
-		SevenDayOpus: api.UsageMetric{
+		SevenDaySonnet: api.UsageMetric{
 			Utilization: 0.9,
 			ResetAt:     now.Add(48 * time.Hour),
 		},
@@ -390,7 +390,7 @@ func TestDisplayUsageWithColor(t *testing.T) {
 		if !strings.Contains(output, colorYellow) {
 			t.Error("Output should contain yellow color for 60% utilization")
 		}
-		// 7-day Opus at 90% should be red
+		// 7-day Sonnet at 90% should be red
 		if !strings.Contains(output, colorRed) {
 			t.Error("Output should contain red color for 90% utilization")
 		}
