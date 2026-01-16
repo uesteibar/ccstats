@@ -27,9 +27,9 @@ func TestFetchUsage_Success(t *testing.T) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{
-			"five_hour": {"utilization": 0.25, "resetAt": "2026-01-16T15:00:00Z"},
-			"seven_day": {"utilization": 0.50, "resetAt": "2026-01-20T00:00:00Z"},
-			"seven_day_opus": {"utilization": 0.75, "resetAt": "2026-01-20T00:00:00Z"}
+			"five_hour": {"utilization": 25, "resets_at": "2026-01-16T15:00:00Z"},
+			"seven_day": {"utilization": 50, "resets_at": "2026-01-20T00:00:00Z"},
+			"seven_day_sonnet": {"utilization": 75, "resets_at": "2026-01-20T00:00:00Z"}
 		}`))
 	}))
 	defer server.Close()
@@ -48,8 +48,8 @@ func TestFetchUsage_Success(t *testing.T) {
 	if resp.SevenDay.Utilization != 0.50 {
 		t.Errorf("expected seven_day utilization 0.50, got %f", resp.SevenDay.Utilization)
 	}
-	if resp.SevenDayOpus.Utilization != 0.75 {
-		t.Errorf("expected seven_day_opus utilization 0.75, got %f", resp.SevenDayOpus.Utilization)
+	if resp.SevenDaySonnet.Utilization != 0.75 {
+		t.Errorf("expected seven_day_sonnet utilization 0.75, got %f", resp.SevenDaySonnet.Utilization)
 	}
 
 	expectedTime := time.Date(2026, 1, 16, 15, 0, 0, 0, time.UTC)
@@ -118,9 +118,9 @@ func TestFetchUsage_InvalidTimestamp(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{
-			"five_hour": {"utilization": 0.25, "resetAt": "not-a-valid-timestamp"},
-			"seven_day": {"utilization": 0.50, "resetAt": "2026-01-20T00:00:00Z"},
-			"seven_day_opus": {"utilization": 0.75, "resetAt": "2026-01-20T00:00:00Z"}
+			"five_hour": {"utilization": 25, "resets_at": "not-a-valid-timestamp"},
+			"seven_day": {"utilization": 50, "resets_at": "2026-01-20T00:00:00Z"},
+			"seven_day_sonnet": {"utilization": 75, "resets_at": "2026-01-20T00:00:00Z"}
 		}`))
 	}))
 	defer server.Close()

@@ -27,21 +27,22 @@ type UsageMetric struct {
 
 // UsageResponse represents the response from the usage endpoint.
 type UsageResponse struct {
-	FiveHour     UsageMetric `json:"five_hour"`
-	SevenDay     UsageMetric `json:"seven_day"`
-	SevenDayOpus UsageMetric `json:"seven_day_opus"`
+	FiveHour       UsageMetric `json:"five_hour"`
+	SevenDay       UsageMetric `json:"seven_day"`
+	SevenDaySonnet UsageMetric `json:"seven_day_sonnet"`
 }
 
 // usageAPIResponse represents the raw API response with ISO timestamp strings.
 type usageAPIResponse struct {
-	FiveHour     usageAPIMetric `json:"five_hour"`
-	SevenDay     usageAPIMetric `json:"seven_day"`
-	SevenDayOpus usageAPIMetric `json:"seven_day_opus"`
+	FiveHour       *usageAPIMetric `json:"five_hour"`
+	SevenDay       *usageAPIMetric `json:"seven_day"`
+	SevenDayOpus   *usageAPIMetric `json:"seven_day_opus"`
+	SevenDaySonnet *usageAPIMetric `json:"seven_day_sonnet"`
 }
 
 type usageAPIMetric struct {
 	Utilization float64 `json:"utilization"`
-	ResetAt     string  `json:"resetAt"`
+	ResetsAt    string  `json:"resets_at"`
 }
 
 // Client is an API client for fetching Anthropic usage data.
@@ -101,35 +102,52 @@ func (c *Client) FetchUsage(accessToken string) (*UsageResponse, error) {
 	return parseUsageResponse(&apiResp)
 }
 
+// parseResetAt parses a reset time string, returning zero time for empty strings.
+func parseResetAt(s string) (time.Time, error) {
+	if s == "" {
+		return time.Time{}, nil
+	}
+	return time.Parse(time.RFC3339, s)
+}
+
+// parseMetric converts an API metric to a UsageMetric, handling nil values.
+// Utilization is converted from percentage (0-100) to decimal (0-1).
+func parseMetric(m *usageAPIMetric, name string) (UsageMetric, error) {
+	if m == nil {
+		return UsageMetric{}, nil
+	}
+
+	resetAt, err := parseResetAt(m.ResetsAt)
+	if err != nil {
+		return UsageMetric{}, fmt.Errorf("failed to parse %s resets_at: %w", name, err)
+	}
+
+	return UsageMetric{
+		Utilization: m.Utilization / 100.0,
+		ResetAt:     resetAt,
+	}, nil
+}
+
 // parseUsageResponse converts the raw API response to a UsageResponse with parsed times.
 func parseUsageResponse(apiResp *usageAPIResponse) (*UsageResponse, error) {
-	fiveHourReset, err := time.Parse(time.RFC3339, apiResp.FiveHour.ResetAt)
+	fiveHour, err := parseMetric(apiResp.FiveHour, "five_hour")
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse five_hour resetAt: %w", err)
+		return nil, err
 	}
 
-	sevenDayReset, err := time.Parse(time.RFC3339, apiResp.SevenDay.ResetAt)
+	sevenDay, err := parseMetric(apiResp.SevenDay, "seven_day")
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse seven_day resetAt: %w", err)
+		return nil, err
 	}
 
-	sevenDayOpusReset, err := time.Parse(time.RFC3339, apiResp.SevenDayOpus.ResetAt)
+	sevenDaySonnet, err := parseMetric(apiResp.SevenDaySonnet, "seven_day_sonnet")
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse seven_day_opus resetAt: %w", err)
+		return nil, err
 	}
 
 	return &UsageResponse{
-		FiveHour: UsageMetric{
-			Utilization: apiResp.FiveHour.Utilization,
-			ResetAt:     fiveHourReset,
-		},
-		SevenDay: UsageMetric{
-			Utilization: apiResp.SevenDay.Utilization,
-			ResetAt:     sevenDayReset,
-		},
-		SevenDayOpus: UsageMetric{
-			Utilization: apiResp.SevenDayOpus.Utilization,
-			ResetAt:     sevenDayOpusReset,
-		},
+		FiveHour:       fiveHour,
+		SevenDay:       sevenDay,
+		SevenDaySonnet: sevenDaySonnet,
 	}, nil
 }
