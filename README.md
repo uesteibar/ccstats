@@ -1,4 +1,7 @@
+> ⚠︎ This tool was built using an AI agent
+
 # ccstats
+
 
 A macOS CLI tool to display Claude Code usage statistics with visual progress bars and color-coded output.
 
