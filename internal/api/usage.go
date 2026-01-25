@@ -2,10 +2,12 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"time"
 )
@@ -53,9 +55,21 @@ type Client struct {
 
 // NewClient creates a new API client.
 func NewClient() *Client {
+	// Force IPv4 to avoid IPv6 connectivity issues on some networks
+	transport := &http.Transport{
+		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+			dialer := &net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}
+			return dialer.DialContext(ctx, "tcp4", addr)
+		},
+	}
+
 	return &Client{
 		httpClient: &http.Client{
-			Timeout: defaultTimeout,
+			Timeout:   defaultTimeout,
+			Transport: transport,
 		},
 		baseURL: usageEndpoint,
 	}
